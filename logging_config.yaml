@@ -1,0 +1,54 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    (): src.utils.logging.ColoredFormatter
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+
+  detailed:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s - [%(filename)s:%(lineno)d]'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+
+filters:
+  sensitive_data:
+    (): src.utils.logging.SensitiveDataFilter
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: standard
+    filters: [sensitive_data]
+    stream: ext://sys.stdout
+
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filters: [sensitive_data]
+    filename: logs/app.log
+    maxBytes: 10485760
+    backupCount: 5
+    encoding: utf8
+
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filters: [sensitive_data]
+    filename: logs/error.log
+    maxBytes: 10485760
+    backupCount: 5
+    encoding: utf8
+
+loggers:
+  my_app:
+    level: DEBUG
+    handlers: [console, file, error_file]
+    propagate: false
+
+root:
+  level: DEBUG
+  handlers: [console, file, error_file]
